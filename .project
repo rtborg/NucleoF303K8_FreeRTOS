@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>NucleoF303K8_FreeRTOS</name>
+	<name>NucleoF303K8_BareMetal</name>
 	<comment></comment>
 	<projects>
 	</projects>
