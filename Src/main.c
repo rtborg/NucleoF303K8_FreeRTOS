@@ -1,11 +1,21 @@
 #include "main.h"
 #include <string.h>
+#include "FreeRTOS.h"
+#include "task.h"
 
 UART_HandleTypeDef huart2;
+TaskHandle_t xTaskHandle1 = NULL;
+TaskHandle_t xTaskHandle2 = NULL;
+char buffer[] = "Hello World!";
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_I2C1_Init(void);
 static void MX_USART2_UART_Init(void);
+
+void vTask1_handler(void *params); // Print a message to the UART every second
+void vTask2_handler(void *params); // Blink the on-board LED every 500ms
+
 
 
 int main(void)
@@ -15,10 +25,18 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
 
+  // Create tasks
+  	xTaskCreate(vTask1_handler, "Task 1", configMINIMAL_STACK_SIZE, NULL, 2,
+  			&xTaskHandle1);
+  	xTaskCreate(vTask2_handler, "Task 2", configMINIMAL_STACK_SIZE, NULL, 2,
+  			&xTaskHandle2);
+  	// Start the scheduler
+  	vTaskStartScheduler();
+
+  	/* We should never get here as control is now taken by the scheduler */
   while (1)
   {
-	  HAL_Delay(250);
-	  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+
   }
 
 }
@@ -110,6 +128,26 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD3_GPIO_Port, &GPIO_InitStruct);
 
+}
+
+/**
+ * Send a message via the UART
+ */
+void vTask1_handler(void *params) {
+	while (1) {
+		HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 100);
+		vTaskDelay(1000);
+	}
+}
+
+/**
+ * Blink on-board LED
+ */
+void vTask2_handler(void *params) {
+	while (1) {
+		HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+		vTaskDelay(500);
+	}
 }
 
 /**
