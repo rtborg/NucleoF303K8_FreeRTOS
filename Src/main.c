@@ -10,6 +10,7 @@ char buffer[] = "Hello World!";
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_I2C1_Init(void);
 static void MX_USART2_UART_Init(void);
 
 void vTask1_handler(void *params); // Print a message to the UART every second
